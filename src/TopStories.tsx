@@ -34,21 +34,30 @@ interface TopStoriesProps {
 
 const TopStories = ({ navigation }: TopStoriesProps) => {
   const insets = useSafeAreaInsets()
+  const [isRefreshingTopStories, setIsRefreshingTopStories] = React.useState(
+    false,
+  )
   const [topStories, setTopStories] = React.useState<HackerNewsItem[]>([])
 
+  const refreshTopStories = async () => {
+    setIsRefreshingTopStories(true)
+    setTopStories(await getTopStories())
+    setIsRefreshingTopStories(false)
+  }
+
   React.useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", async () =>
-      setTopStories(await getTopStories()),
-    )
+    const unsubscribe = navigation.addListener("focus", async () => {
+      refreshTopStories()
+    })
     return unsubscribe
   }, [navigation])
-
-  console.log(topStories[0])
 
   return (
     <>
       <View style={{ backgroundColor: "#fff", height: insets.top }} />
       <FlatList
+        onRefresh={refreshTopStories}
+        refreshing={isRefreshingTopStories}
         style={{ backgroundColor: "#fff" }}
         data={topStories}
         renderItem={({ item: topStory }) => {
