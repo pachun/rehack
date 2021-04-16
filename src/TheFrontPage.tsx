@@ -2,7 +2,31 @@ import React from "react"
 import { FlatList, Text, View } from "react-native"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { DateTime } from "luxon"
 import StoryListItem from "./StoryListItem"
+
+const isFirstFrontPageLoadOrHasBeenFiveMinutesSinceLastFrontPageRefresh = async () => {
+  const lastISO8601FrontPageRefreshTime = await AsyncStorage.getItem(
+    "Last ISO8601 Front Page Refresh Time",
+  )
+  const isFirstFrontPageLoad = lastISO8601FrontPageRefreshTime === null
+  if (isFirstFrontPageLoad) {
+    return true
+  } else {
+    const lastFrontPageRefreshTime = DateTime.fromISO(
+      lastISO8601FrontPageRefreshTime as string,
+    )
+    const currentTime = DateTime.now()
+    const hasBeenFiveMinutesSinceLastFrontPageRefresh =
+      lastFrontPageRefreshTime.plus({ minutes: 5 }) < currentTime
+    if (hasBeenFiveMinutesSinceLastFrontPageRefresh) {
+      return true
+    } else {
+      return false
+    }
+  }
+}
 
 const getTheFrontPageStories = async (): Promise<HackerNewsItem[]> => {
   const topStoryIdsRequest = await fetch(
@@ -23,21 +47,27 @@ const getTheFrontPageStories = async (): Promise<HackerNewsItem[]> => {
   return await topStories
 }
 
-interface TheFrontPageProps {
+const TheFrontPage = ({
+  navigation,
+}: {
   navigation: StackNavigationProp<{}>
-}
-
-const TheFrontPage = ({ navigation }: TheFrontPageProps) => {
+}) => {
   const insets = useSafeAreaInsets()
+
   const [
     isRefreshingTheFrontPage,
     setIsRefreshingTheFrontPage,
   ] = React.useState(false)
+
   const [theFrontPageStories, setTheFrontPageStories] = React.useState<
     HackerNewsItem[]
   >([])
 
   const refreshTheFrontPage = async () => {
+    AsyncStorage.setItem(
+      "Last ISO8601 Front Page Refresh Time",
+      DateTime.now().toString(),
+    )
     setIsRefreshingTheFrontPage(true)
     setTheFrontPageStories(await getTheFrontPageStories())
     setIsRefreshingTheFrontPage(false)
@@ -45,7 +75,11 @@ const TheFrontPage = ({ navigation }: TheFrontPageProps) => {
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", async () => {
-      refreshTheFrontPage()
+      if (
+        await isFirstFrontPageLoadOrHasBeenFiveMinutesSinceLastFrontPageRefresh()
+      ) {
+        refreshTheFrontPage()
+      }
     })
     return unsubscribe
   }, [navigation])
