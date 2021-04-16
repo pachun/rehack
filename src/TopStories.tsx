@@ -9,37 +9,45 @@ import {
 import { StackNavigationProp } from "@react-navigation/stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
-const getFrontPageStories = async (): Promise<HackerNewsStory[]> => {
-  const frontPageRequest = await fetch(
-    `https://hn.algolia.com/api/v1/search?tags=front_page`,
+const getTopStories = async (): Promise<HackerNewsItem[]> => {
+  const topStoryIdsRequest = await fetch(
+    `https://hacker-news.firebaseio.com/v0/topstories.json`,
   )
-  const frontPageStories = (await frontPageRequest.json()).hits
-  return frontPageStories
+  const topStoryIds: number[] = await topStoryIdsRequest.json()
+  const topStories = Promise.all(
+    topStoryIds.map(
+      (topStoryId): Promise<HackerNewsItem> => {
+        return fetch(
+          `https://hacker-news.firebaseio.com/v0/item/${topStoryId}.json`,
+        ).then(topStoryRequest =>
+          topStoryRequest.json().then(topStory => topStory),
+        )
+      },
+    ),
+  )
+  return await topStories
 }
 
-interface FrontPageProps {
+interface TopStoriesProps {
   navigation: StackNavigationProp<{}>
 }
 
-const FrontPage = ({ navigation }: FrontPageProps) => {
+const TopStories = ({ navigation }: TopStoriesProps) => {
   const insets = useSafeAreaInsets()
-  const [
-    isRefreshingFrontPageStories,
-    setIsRefreshingFrontPageStories,
-  ] = React.useState(false)
-  const [frontPageStories, setFrontPageStories] = React.useState<
-    HackerNewsStory[]
-  >([])
+  const [isRefreshingTopStories, setIsRefreshingTopStories] = React.useState(
+    false,
+  )
+  const [topStories, setTopStories] = React.useState<HackerNewsItem[]>([])
 
-  const refreshFrontPageStories = async () => {
-    setIsRefreshingFrontPageStories(true)
-    setFrontPageStories(await getFrontPageStories())
-    setIsRefreshingFrontPageStories(false)
+  const refreshTopStories = async () => {
+    setIsRefreshingTopStories(true)
+    setTopStories(await getTopStories())
+    setIsRefreshingTopStories(false)
   }
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", async () => {
-      refreshFrontPageStories()
+      refreshTopStories()
     })
     return unsubscribe
   }, [navigation])
@@ -48,13 +56,13 @@ const FrontPage = ({ navigation }: FrontPageProps) => {
     <>
       <View style={{ backgroundColor: "#fff", height: insets.top }} />
       <FlatList
-        onRefresh={refreshFrontPageStories}
-        refreshing={isRefreshingFrontPageStories}
+        onRefresh={refreshTopStories}
+        refreshing={isRefreshingTopStories}
         style={{ backgroundColor: "#fff" }}
-        data={frontPageStories}
+        data={topStories}
         renderItem={({ item: topStory }) => {
           const storyLocation = () => {
-            const urlBits = topStory.url.split("/")
+            const urlBits = topStory.url?.split("/")
             const host = urlBits?.[2]
             if (host?.startsWith("www.")) {
               return host.slice(4)
@@ -86,11 +94,11 @@ const FrontPage = ({ navigation }: FrontPageProps) => {
             </TouchableOpacity>
           )
         }}
-        keyExtractor={item => item.objectID}
+        keyExtractor={item => item.id.toString()}
       />
       <View style={{ backgroundColor: "#fff", height: insets.bottom }} />
     </>
   )
 }
 
-export default FrontPage
+export default TopStories
