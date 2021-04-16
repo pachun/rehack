@@ -19,15 +19,17 @@ const storyLocation = (story: HackerNewsItem) => {
 const StoryListItem = ({ story }: { story: HackerNewsItem }) => (
   <View style={{ padding: 15, paddingRight: 30, paddingLeft: 30 }}>
     <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-      <TouchableOpacity style={{ maxWidth: "80%" }}>
-        <Text
-          style={{
-            fontSize: 24,
-            fontWeight: "600",
-          }}
-        >
-          {story.title}
-        </Text>
+      <View style={{ width: "100%" }}>
+        <TouchableOpacity>
+          <Text
+            style={{
+              fontSize: 24,
+              fontWeight: "600",
+            }}
+          >
+            {story.title}
+          </Text>
+        </TouchableOpacity>
         <View style={{ height: 5 }} />
         <Text
           style={{
@@ -37,27 +39,16 @@ const StoryListItem = ({ story }: { story: HackerNewsItem }) => (
         >
           {storyLocation(story)}
         </Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={{ alignItems: "center" }}>
-        <View>
-          <Text
-            style={{
-              fontSize: 14,
-              color: PlatformColor("systemGray"),
-            }}
-          >
-            {story.descendants ? story.descendants : 0}
-          </Text>
-        </View>
-        <View>
-          <FontAwesome5
-            style={{ marginTop: -22 }}
-            name="comment-alt"
-            size={34}
-            color="#ddd"
-          />
-        </View>
-      </TouchableOpacity>
+        <View style={{ height: 3 }} />
+        <Text
+          style={{
+            fontSize: 14,
+            color: PlatformColor("systemGray"),
+          }}
+        >
+          {story.descendants ? story.descendants : 0}
+        </Text>
+      </View>
     </View>
   </View>
 )

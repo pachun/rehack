@@ -1,11 +1,10 @@
 import React from "react"
 import { FlatList, Text, View } from "react-native"
-import { FontAwesome } from "@expo/vector-icons"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import StoryListItem from "./StoryListItem"
 
-const getTopStories = async (): Promise<HackerNewsItem[]> => {
+const getTheFrontPageStories = async (): Promise<HackerNewsItem[]> => {
   const topStoryIdsRequest = await fetch(
     `https://hacker-news.firebaseio.com/v0/topstories.json`,
   )
@@ -24,26 +23,29 @@ const getTopStories = async (): Promise<HackerNewsItem[]> => {
   return await topStories
 }
 
-interface TopStoriesProps {
+interface TheFrontPageProps {
   navigation: StackNavigationProp<{}>
 }
 
-const TopStories = ({ navigation }: TopStoriesProps) => {
+const TheFrontPage = ({ navigation }: TheFrontPageProps) => {
   const insets = useSafeAreaInsets()
-  const [isRefreshingTopStories, setIsRefreshingTopStories] = React.useState(
-    false,
-  )
-  const [topStories, setTopStories] = React.useState<HackerNewsItem[]>([])
+  const [
+    isRefreshingTheFrontPage,
+    setIsRefreshingTheFrontPage,
+  ] = React.useState(false)
+  const [theFrontPageStories, setTheFrontPageStories] = React.useState<
+    HackerNewsItem[]
+  >([])
 
-  const refreshTopStories = async () => {
-    setIsRefreshingTopStories(true)
-    setTopStories(await getTopStories())
-    setIsRefreshingTopStories(false)
+  const refreshTheFrontPage = async () => {
+    setIsRefreshingTheFrontPage(true)
+    setTheFrontPageStories(await getTheFrontPageStories())
+    setIsRefreshingTheFrontPage(false)
   }
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", async () => {
-      refreshTopStories()
+      refreshTheFrontPage()
     })
     return unsubscribe
   }, [navigation])
@@ -52,10 +54,10 @@ const TopStories = ({ navigation }: TopStoriesProps) => {
     <>
       <View style={{ backgroundColor: "#fff", height: insets.top }} />
       <FlatList
-        onRefresh={refreshTopStories}
-        refreshing={isRefreshingTopStories}
+        onRefresh={refreshTheFrontPage}
+        refreshing={isRefreshingTheFrontPage}
         style={{ backgroundColor: "#fff" }}
-        data={topStories}
+        data={theFrontPageStories}
         renderItem={({ item: topStory }) => <StoryListItem story={topStory} />}
         keyExtractor={item => item.id.toString()}
         ListHeaderComponent={
@@ -85,4 +87,4 @@ const TopStories = ({ navigation }: TopStoriesProps) => {
   )
 }
 
-export default TopStories
+export default TheFrontPage
