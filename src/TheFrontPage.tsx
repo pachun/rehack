@@ -55,8 +55,8 @@ const getTheFrontPageStories = async (): Promise<HackerNewsItem[]> => {
 const TheFrontPage = ({
   navigation,
 }: {
-  navigation: StackNavigationProp<{}>
-}) => {
+  navigation: StackNavigationProp<Record<string, never>>
+}): React.ReactElement => {
   const insets = useSafeAreaInsets()
 
   const [

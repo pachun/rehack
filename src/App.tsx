@@ -7,7 +7,7 @@ import Story from "./Story"
 
 const Stack = createStackNavigator()
 
-const App = () => (
+const App = (): React.ReactElement => (
   <SafeAreaProvider>
     <NavigationContainer>
       <Stack.Navigator

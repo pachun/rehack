@@ -16,7 +16,11 @@ const storyLocation = (story: HackerNewsItem) => {
   }
 }
 
-const StoryListItem = ({ story }: { story: HackerNewsItem }) => {
+const StoryListItem = ({
+  story,
+}: {
+  story: HackerNewsItem
+}): React.ReactElement => {
   const navigation = useNavigation()
 
   return (
