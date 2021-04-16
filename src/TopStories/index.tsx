@@ -1,5 +1,6 @@
 import React from "react"
-import { FlatList, View } from "react-native"
+import { FlatList, Text, View } from "react-native"
+import { FontAwesome } from "@expo/vector-icons"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import StoryListItem from "./StoryListItem"
@@ -57,6 +58,27 @@ const TopStories = ({ navigation }: TopStoriesProps) => {
         data={topStories}
         renderItem={({ item: topStory }) => <StoryListItem story={topStory} />}
         keyExtractor={item => item.id.toString()}
+        ListHeaderComponent={
+          <View
+            style={{
+              padding: 10,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 24,
+                fontFamily: "Baskerville",
+                fontWeight: "500",
+              }}
+            >
+              The Front Page
+            </Text>
+            <View style={{ height: 7 }} />
+            <View style={{ height: 1, backgroundColor: "#000", width: 50 }} />
+          </View>
+        }
       />
       <View style={{ backgroundColor: "#fff", height: insets.bottom }} />
     </>

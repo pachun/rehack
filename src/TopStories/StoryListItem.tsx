@@ -17,9 +17,9 @@ const storyLocation = (story: HackerNewsItem) => {
 }
 
 const StoryListItem = ({ story }: { story: HackerNewsItem }) => (
-  <TouchableOpacity style={{ padding: 10 }}>
+  <View style={{ padding: 15, paddingRight: 30, paddingLeft: 30 }}>
     <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-      <View style={{ maxWidth: "90%" }}>
+      <TouchableOpacity style={{ maxWidth: "80%" }}>
         <Text
           style={{
             fontSize: 24,
@@ -31,22 +31,22 @@ const StoryListItem = ({ story }: { story: HackerNewsItem }) => (
         <View style={{ height: 5 }} />
         <Text
           style={{
-            color: PlatformColor("systemGray"),
+            color: PlatformColor("systemPink"),
             fontSize: 14,
           }}
         >
           {storyLocation(story)}
         </Text>
-      </View>
-      <View style={{ alignItems: "center" }}>
+      </TouchableOpacity>
+      <TouchableOpacity style={{ alignItems: "center" }}>
         <View>
           <Text
             style={{
               fontSize: 14,
-              color: PlatformColor("systemPink"),
+              color: PlatformColor("systemGray"),
             }}
           >
-            {story.descendants}
+            {story.descendants ? story.descendants : 0}
           </Text>
         </View>
         <View>
@@ -57,9 +57,9 @@ const StoryListItem = ({ story }: { story: HackerNewsItem }) => (
             color="#ddd"
           />
         </View>
-      </View>
+      </TouchableOpacity>
     </View>
-  </TouchableOpacity>
+  </View>
 )
 
 export default StoryListItem
