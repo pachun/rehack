@@ -6,49 +6,31 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import { DateTime } from "luxon"
 import StoryListItem from "./StoryListItem"
 
-const isFirstFrontPageLoadOrHasBeenFiveMinutesSinceLastFrontPageRefresh = async () => {
-  const lastISO8601FrontPageRefreshTime = await AsyncStorage.getItem(
-    "Last ISO8601 Front Page Refresh Time",
-  )
-  const isFirstFrontPageLoad = lastISO8601FrontPageRefreshTime === null
-  if (isFirstFrontPageLoad) {
-    return true
-  } else {
-    const lastFrontPageRefreshTime = DateTime.fromISO(
-      lastISO8601FrontPageRefreshTime as string,
-    )
-    const currentTime = DateTime.now()
-    const hasBeenFiveMinutesSinceLastFrontPageRefresh =
-      lastFrontPageRefreshTime.plus({ minutes: 5 }) < currentTime
-    if (hasBeenFiveMinutesSinceLastFrontPageRefresh) {
-      return true
-    } else {
-      return false
-    }
-  }
-}
+const perPage = 20
+const whenScrolledToWithinHalfTheScreensHeightFromTheBottom = 0.5
 
-const numberOfStoriesPerPage = 20
-
-const getTheFrontPageStories = async (): Promise<HackerNewsItem[]> => {
+const getTheFrontPageStoriesIds = async (): Promise<number[]> => {
   const frontPageStoryIdsRequest = await fetch(
     `https://hacker-news.firebaseio.com/v0/topstories.json`,
   )
-  const frontPageStoryIds: number[] = (
-    await frontPageStoryIdsRequest.json()
-  ).slice(0, numberOfStoriesPerPage)
-  const topStories = Promise.all(
-    frontPageStoryIds.map(
-      (frontPageStoryId): Promise<HackerNewsItem> => {
+  const frontPageStoryIds: number[] = await frontPageStoryIdsRequest.json()
+  return frontPageStoryIds
+}
+
+const getStories = async (storyIds: number[]) => {
+  return await Promise.all(
+    storyIds.map(
+      (storyId): Promise<HackerNewsItem> => {
         return fetch(
-          `https://hacker-news.firebaseio.com/v0/item/${frontPageStoryId}.json`,
-        ).then(frontPageStoryRequest =>
-          frontPageStoryRequest.json().then(frontPageStory => frontPageStory),
+          `https://hacker-news.firebaseio.com/v0/item/${storyId}.json`,
+        ).then(storyOnNextPageRequest =>
+          storyOnNextPageRequest
+            .json()
+            .then(storyOnNextPage => storyOnNextPage),
         )
       },
     ),
   )
-  return await topStories
 }
 
 const TheFrontPage = ({
@@ -63,35 +45,63 @@ const TheFrontPage = ({
     setIsRefreshingTheFrontPage,
   ] = React.useState(false)
 
+  const [numberOfPagesLoaded, setNumberOfPagesLoaded] = React.useState<number>(
+    0,
+  )
+  const [theFrontPageStoriesIds, setTheFrontPageStoriesIds] = React.useState<
+    number[]
+  >([])
+
   const [theFrontPageStories, setTheFrontPageStories] = React.useState<
     HackerNewsItem[]
   >([])
 
-  const refreshTheFrontPage = async () => {
+  const refreshTheFrontPage = React.useCallback(async () => {
+    setIsRefreshingTheFrontPage(true)
     AsyncStorage.setItem(
       "Last ISO8601 Front Page Refresh Time",
       DateTime.now().toString(),
     )
-    setIsRefreshingTheFrontPage(true)
-    setTheFrontPageStories(await getTheFrontPageStories())
+    const theFrontPageStoriesIds = await getTheFrontPageStoriesIds()
+    setTheFrontPageStoriesIds(theFrontPageStoriesIds)
+    setTheFrontPageStories(
+      await getStories(theFrontPageStoriesIds.slice(0, perPage)),
+    )
+    setNumberOfPagesLoaded(1)
     setIsRefreshingTheFrontPage(false)
+  }, [])
+
+  const getNextPageOfFrontPageStories = async () => {
+    const positionOfFirstStoriesId = numberOfPagesLoaded * perPage
+    const idsOfStoriesOnNextPage = theFrontPageStoriesIds.slice(
+      positionOfFirstStoriesId,
+      positionOfFirstStoriesId + perPage,
+    )
+    const allStories = [
+      ...theFrontPageStories,
+      ...(await getStories(idsOfStoriesOnNextPage)),
+    ]
+    setTheFrontPageStories(allStories)
+    setNumberOfPagesLoaded(allStories.length / perPage)
   }
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", async () => {
-      if (
-        await isFirstFrontPageLoadOrHasBeenFiveMinutesSinceLastFrontPageRefresh()
-      ) {
+      if (theFrontPageStories.length === 0) {
         refreshTheFrontPage()
       }
     })
     return unsubscribe
-  }, [navigation])
+  }, [navigation, theFrontPageStories.length, refreshTheFrontPage])
 
   return (
     <>
       <View style={{ backgroundColor: "#fff", height: insets.top }} />
       <FlatList
+        onEndReachedThreshold={
+          whenScrolledToWithinHalfTheScreensHeightFromTheBottom
+        }
+        onEndReached={getNextPageOfFrontPageStories}
         onRefresh={refreshTheFrontPage}
         refreshing={isRefreshingTheFrontPage}
         style={{ backgroundColor: "#fff" }}
@@ -108,8 +118,8 @@ const TheFrontPage = ({
           >
             <Text
               style={{
-                fontSize: 24,
-                fontFamily: "Baskerville",
+                fontSize: 20,
+                fontFamily: "NewYorkHeavyItalic",
                 fontWeight: "500",
               }}
             >
