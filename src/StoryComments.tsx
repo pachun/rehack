@@ -88,9 +88,10 @@ const StoryComments = ({
             <Text style={{ fontSize: 20 }}>
               {storyComment.by} @ {postTimeOf(storyComment)}
             </Text>
-            <HTML source={{ html: storyComment.text || "" }} />
+            <HTML source={{ html: storyComment.text || "<p></p>" }} />
           </View>
         )}
+        keyExtractor={item => item.id.toString()}
       />
     )
   }
