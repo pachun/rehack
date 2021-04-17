@@ -31,20 +31,19 @@ const isFirstFrontPageLoadOrHasBeenFiveMinutesSinceLastFrontPageRefresh = async 
 const numberOfStoriesPerPage = 20
 
 const getTheFrontPageStories = async (): Promise<HackerNewsItem[]> => {
-  const topStoryIdsRequest = await fetch(
+  const frontPageStoryIdsRequest = await fetch(
     `https://hacker-news.firebaseio.com/v0/topstories.json`,
   )
-  const topStoryIds: number[] = (await topStoryIdsRequest.json()).slice(
-    0,
-    numberOfStoriesPerPage,
-  )
+  const frontPageStoryIds: number[] = (
+    await frontPageStoryIdsRequest.json()
+  ).slice(0, numberOfStoriesPerPage)
   const topStories = Promise.all(
-    topStoryIds.map(
-      (topStoryId): Promise<HackerNewsItem> => {
+    frontPageStoryIds.map(
+      (frontPageStoryId): Promise<HackerNewsItem> => {
         return fetch(
-          `https://hacker-news.firebaseio.com/v0/item/${topStoryId}.json`,
-        ).then(topStoryRequest =>
-          topStoryRequest.json().then(topStory => topStory),
+          `https://hacker-news.firebaseio.com/v0/item/${frontPageStoryId}.json`,
+        ).then(frontPageStoryRequest =>
+          frontPageStoryRequest.json().then(frontPageStory => frontPageStory),
         )
       },
     ),
