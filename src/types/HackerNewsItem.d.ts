@@ -9,7 +9,7 @@ interface HackerNewsItem {
   dead?: boolean
   parent?: HackerNewsItem
   poll?: HackerNewsItem
-  kids?: HackerNewsItem[]
+  kids?: number[]
   url?: string
   score?: number
   title?: string

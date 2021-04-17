@@ -28,7 +28,7 @@ const StoryListItem = ({
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <View style={{ width: "100%" }}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("Story", { story })}
+            onPress={() => navigation.navigate("Story Comments", { story })}
           >
             <Text
               style={{
