@@ -48,11 +48,19 @@ const StoryLocation = ({ story }: { story: HackerNewsItem }) => {
 
 const StoryComments = ({ story }: { story: HackerNewsItem }) => {
   const navigation = useNavigation()
+  const numberOfComments = story.descendants || 0
+  const doNotActTouchable = { activeOpacity: 1 }
+  const doNothing = () => {}
   return (
     <TouchableOpacity
       style={{ flexDirection: "row", justifyContent: "flex-end" }}
-      onPress={() => navigation.navigate("Story Comments", { story })}
+      onPress={() =>
+        numberOfComments > 0
+          ? navigation.navigate("Story Comments", { story })
+          : doNothing()
+      }
       hitSlop={{ top: 20, left: 20, bottom: 20, right: 20 }}
+      {...(numberOfComments === 0 ? doNotActTouchable : {})}
     >
       <Text
         style={{
@@ -60,7 +68,7 @@ const StoryComments = ({ story }: { story: HackerNewsItem }) => {
           color: PlatformColor("systemGray"),
         }}
       >
-        {story.descendants ? story.descendants : 0}
+        {numberOfComments}
       </Text>
       <View style={{ width: 5 }} />
       <Ionicons name="chatbubble" size={14} color="gray" />

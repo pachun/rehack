@@ -80,13 +80,14 @@ const TheFrontPage = ({
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", async () => {
       if (
-        await isFirstFrontPageLoadOrHasBeenFiveMinutesSinceLastFrontPageRefresh()
+        (await isFirstFrontPageLoadOrHasBeenFiveMinutesSinceLastFrontPageRefresh()) ||
+        (__DEV__ && theFrontPageStories.length === 0)
       ) {
         refreshTheFrontPage()
       }
     })
     return unsubscribe
-  }, [navigation])
+  }, [navigation, theFrontPageStories.length])
 
   return (
     <>
