@@ -20,19 +20,25 @@ const minutesInAnHour = 60
 const postTimeOf = (storyComment: HackerNewsItem) => {
   if (storyComment.time) {
     const postTime = DateTime.fromSeconds(storyComment.time)
-    const unroundedMinutesAgo = DateTime.now()
-      .diff(postTime, "minutes")
-      .toObject().minutes
+    const now = DateTime.now()
+    const unroundedMinutesAgo = now.diff(postTime, "minutes").toObject().minutes
+    const unroundedHoursAgo = now.diff(postTime, "hours").toObject().hours
+    const unroundedDaysAgo = now.diff(postTime, "days").toObject().days
     if (unroundedMinutesAgo && unroundedMinutesAgo < minutesInAnHour) {
       return `${Math.round(unroundedMinutesAgo)} minutes ago`
+    } else if (unroundedHoursAgo && unroundedHoursAgo === 1) {
+      return `1 hour ago`
     } else if (
-      unroundedMinutesAgo &&
-      unroundedMinutesAgo < minutesInAnHour * 6
+      unroundedHoursAgo &&
+      unroundedHoursAgo > 1 &&
+      unroundedHoursAgo < 6
     ) {
-      const hoursAgo = Math.round(unroundedMinutesAgo / 60)
-      return `${hoursAgo} hour${hoursAgo > 1 ? "s" : ""} ago`
+      const hoursAgo = Math.round(unroundedHoursAgo)
+      return `${hoursAgo} hours ago`
     } else if (postTime.hasSame(DateTime.now(), "day")) {
       return postTime.toLocaleString(DateTime.TIME_SIMPLE)
+    } else if (unroundedDaysAgo && Math.round(unroundedDaysAgo) === 1) {
+      return `Yesterday, ${postTime.toLocaleString(DateTime.TIME_SIMPLE)}`
     } else {
       return postTime.toLocaleString(DateTime.DATETIME_SHORT)
     }
@@ -115,7 +121,7 @@ const StoryComments = ({
                 }}
               >
                 <Text
-                  style={{ fontSize: 16, color: PlatformColor("systemPink") }}
+                  style={{ fontSize: 16, color: PlatformColor("systemPurple") }}
                 >
                   {storyComment.by}{" "}
                 </Text>
