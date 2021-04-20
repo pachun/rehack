@@ -63,7 +63,7 @@ const SubComments = ({
 }: {
   comment: HackerNewsItem
   level: number
-}): React.ReactElement | null => {
+}): React.ReactElement => {
   const [subComments, setSubComments] = React.useState<HackerNewsItem[]>([])
 
   React.useEffect(() => {
