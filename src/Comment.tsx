@@ -92,9 +92,22 @@ const Comment = ({
           justifyContent: "space-between",
         }}
       >
-        <Text style={{ fontSize: 14, color: PlatformColor("systemPurple") }}>
-          {comment.by}{" "}
-        </Text>
+        {comment.by && (
+          <Text style={{ fontSize: 14, color: PlatformColor("systemPurple") }}>
+            {comment.by}
+          </Text>
+        )}
+        {comment.deleted && (
+          <Text
+            style={{
+              fontSize: 14,
+              color: PlatformColor("systemPurple"),
+              fontStyle: "italic",
+            }}
+          >
+            [deleted]
+          </Text>
+        )}
         <Text style={{ fontSize: 14, color: PlatformColor("systemGray") }}>
           {postTimeOf(comment)}
         </Text>
