@@ -109,8 +109,8 @@ const TheFrontPage = ({
           >
             <Text
               style={{
-                fontSize: 24,
-                fontFamily: "Baskerville",
+                fontSize: 20,
+                fontFamily: "NewYorkHeavyItalic",
                 fontWeight: "500",
               }}
             >

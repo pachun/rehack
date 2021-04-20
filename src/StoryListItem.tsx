@@ -23,8 +23,8 @@ const StoryTitle = ({ story }: { story: HackerNewsItem }) => {
     <TouchableOpacity onPress={() => navigation.navigate("Story", { story })}>
       <Text
         style={{
-          fontSize: 28,
-          fontWeight: "600",
+          fontSize: 20,
+          fontFamily: "NewYork",
         }}
       >
         {story.title}
