@@ -69,9 +69,7 @@ const StoryComments = ({
           }}
           ListHeaderComponent={() => <View style={{ height: 20 }} />}
           data={storyComments}
-          renderItem={({ item: storyComment }) => (
-            <Comment comment={storyComment} />
-          )}
+          renderItem={({ item: comment }) => <Comment comment={comment} />}
           keyExtractor={item => item.id.toString()}
         />
         <View style={{ height: insets.bottom }} />
