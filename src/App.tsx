@@ -28,8 +28,8 @@ const App = (): React.ReactElement => {
             screenOptions={{
               headerTintColor: "#000",
               headerBackTitleStyle: {
-                fontSize: 24,
-                fontFamily: "Baskerville",
+                fontSize: 20,
+                fontFamily: "NewYorkHeavyItalic",
                 fontWeight: "500",
               },
             }}
