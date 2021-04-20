@@ -2,7 +2,6 @@ import React from "react"
 import { PlatformColor, Text, View } from "react-native"
 import { DateTime } from "luxon"
 import HTML from "react-native-render-html"
-import SubComments from "./SubComments"
 
 const formatHackerNewsComment = (htmlComment: string) => {
   return `<p>${htmlComment.split("<p>").join("</p><p>")}</p>`
@@ -38,6 +37,46 @@ const postTimeOf = (storyComment: HackerNewsItem) => {
   } else {
     return ""
   }
+}
+
+const getSubComments = async (
+  comment: HackerNewsItem,
+): Promise<HackerNewsItem[]> => {
+  const subCommentIds = comment.kids || []
+  const subComments = Promise.all(
+    subCommentIds.map(subCommentId =>
+      fetch(
+        `https://hacker-news.firebaseio.com/v0/item/${subCommentId}.json`,
+      ).then(subCommentRequest =>
+        subCommentRequest
+          .json()
+          .then((subComment: HackerNewsItem) => subComment),
+      ),
+    ),
+  )
+  return subComments
+}
+
+const SubComments = ({
+  comment,
+  level,
+}: {
+  comment: HackerNewsItem
+  level: number
+}): React.ReactElement | null => {
+  const [subComments, setSubComments] = React.useState<HackerNewsItem[]>([])
+
+  React.useEffect(() => {
+    getSubComments(comment).then(setSubComments)
+  }, [comment])
+
+  return (
+    <View style={{ width: "100%", paddingLeft: 20 * level }}>
+      {subComments.map(subComment => (
+        <Comment comment={subComment} key={subComment.id.toString()} />
+      ))}
+    </View>
+  )
 }
 
 const Comment = ({

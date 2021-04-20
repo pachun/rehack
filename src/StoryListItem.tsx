@@ -50,15 +50,14 @@ const StoryComments = ({ story }: { story: HackerNewsItem }) => {
   const navigation = useNavigation()
   const numberOfComments = story.descendants || 0
   const doNotActTouchable = { activeOpacity: 1 }
-  const doNothing = () => {}
   return (
     <TouchableOpacity
       style={{ flexDirection: "row", justifyContent: "flex-end" }}
-      onPress={() =>
-        numberOfComments > 0
-          ? navigation.navigate("Story Comments", { story })
-          : doNothing()
-      }
+      onPress={() => {
+        if (numberOfComments > 0) {
+          navigation.navigate("Story Comments", { story })
+        }
+      }}
       hitSlop={{ top: 20, left: 20, bottom: 20, right: 20 }}
       {...(numberOfComments === 0 ? doNotActTouchable : {})}
     >
